@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gerador de QR Code - Tema Escuro e Responsivo</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <style>
+      /* ================================================= */
+      /* === VARIÁVEIS E TEMA ESCURO === */
+      /* ================================================= */
+      :root {
+        /* Cores do Tema Escuro */
+        --background-dark: #1e1e2f; /* Fundo principal escuro */
+        --card-background: #27293d; /* Cor de fundo do Card */
+        --primary-text: #ffffff; /* Texto principal (branco) */
+        --secondary-text: #bdc3c7; /* Texto secundário/Placeholder */
+        --border-dark: #3a3b53; /* Bordas e divisores */
+
+        /* Cores de Ação */
+        --accent-color-generate: #00b0ff; /* Azul Ciano Vibrante (Gerar) */
+        --accent-color-download: #1abc9c; /* Verde Turquesa (Baixar) */
+
+        /* Elementos de Formulário */
+        --input-background: #3a3b53;
+        --box-shadow-focus: rgba(0, 176, 255, 0.4); /* Sombra de foco azul */
+      }
+
+      /* ================================================= */
+      /* === GERAL E LAYOUT === */
+      /* ================================================= */
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        margin: 0;
+        background-color: var(--background-dark);
+        color: var(--primary-text);
+        line-height: 1.6;
+        padding: 20px;
+      }
+
+      .container {
+        background-color: var(--card-background);
+        padding: 40px;
+        border-radius: 16px;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3); /* Sombra mais intensa no tema escuro */
+        text-align: center;
+        max-width: 500px;
+        width: 100%;
+        transition: all 0.3s ease-out;
+        border: 1px solid var(--border-dark);
+      }
+
+      /* Título e Texto Explicativo */
+      h1 {
+        color: var(--primary-text);
+        margin-bottom: 10px;
+        font-size: 2.2em;
+        font-weight: 700;
+      }
+
+      .explanation {
+        color: var(--secondary-text);
+        margin-bottom: 30px;
+        font-size: 0.95em;
+      }
+
+      /* ================================================= */
+      /* === FORMULÁRIO E BOTÕES === */
+      /* ================================================= */
+
+      /* Input de URL */
+      input[type="url"] {
+        width: 100%;
+        padding: 14px;
+        margin-bottom: 25px;
+        border: 1px solid var(--border-dark);
+        border-radius: 8px;
+        font-size: 1em;
+        color: var(--primary-text);
+        background-color: var(--input-background);
+        box-sizing: border-box;
+        transition: border-color 0.3s, box-shadow 0.3s;
+      }
+      input[type="url"]::placeholder {
+        color: var(--secondary-text);
+      }
+      input[type="url"]:focus {
+        border-color: var(--accent-color-download);
+        box-shadow: 0 0 0 3px var(--box-shadow-focus);
+        outline: none;
+      }
+
+      /* Agrupamento de Botões */
+      .button-group {
+        display: flex;
+        justify-content: space-between;
+        gap: 15px;
+        margin-bottom: 30px;
+      }
+      .button-group button {
+        flex-grow: 1;
+        padding: 12px 20px;
+        font-size: 1em;
+        font-weight: 600;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+        text-transform: uppercase;
+      }
+
+      /* Botão Gerar */
+      #generateBtn {
+        background-color: var(--accent-color-generate);
+        color: var(--card-background);
+      }
+      #generateBtn:hover {
+        background-color: #0099e0; /* Tom mais escuro */
+        box-shadow: 0 5px 12px rgba(0, 176, 255, 0.4);
+      }
+
+      /* Botão de Download */
+      #downloadBtn {
+        background-color: var(--accent-color-download);
+        color: var(--card-background);
+      }
+      #downloadBtn:hover {
+        background-color: #16a085;
+        box-shadow: 0 5px 12px rgba(26, 188, 156, 0.4);
+      }
+
+      /* ================================================= */
+      /* === QR CODE E LOADING === */
+      /* ================================================= */
+
+      #qrcode-wrapper {
+        background-color: var(--card-background);
+        padding: 15px;
+        border-radius: 12px;
+        border: 1px solid var(--border-dark);
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+        margin: 20px auto;
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        min-width: 320px;
+        min-height: 320px;
+      }
+
+      #qrcode {
+        /* O container interno do qrcode.js */
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      /* Estilo da mensagem de loading */
+      #qrcode-wrapper.loading::after {
+        content: "Preparando seu QR Code...";
+        color: var(--secondary-text);
+        font-style: italic;
+        padding: 100px 0;
+        min-width: 200px; /* Garante que a mensagem não fique espremida */
+      }
+
+      /* Esconde o canvas/QR Code quando está carregando */
+      #qrcode-wrapper.loading #qrcode {
+        display: none;
+      }
+
+      /* ================================================= */
+      /* === RESPONSIVIDADE === */
+      /* ================================================= */
+      @media (max-width: 600px) {
+        .container {
+          padding: 30px 20px;
+          margin: 10px;
+        }
+        h1 {
+          font-size: 1.8em;
+        }
+        .button-group {
+          flex-direction: column; /* Empilha os botões em telas pequenas */
+          gap: 15px;
+        }
+        #qrcode-wrapper {
+          min-width: 100%; /* Ocupa a largura total no mobile */
+          min-height: 280px;
+          padding: 10px;
+        }
+        /* Reduz o tamanho do QR Code em telas pequenas, se necessário, ajustando o JS */
+        #qrcode canvas,
+        #qrcode img {
+          max-width: 100% !important;
+          height: auto !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>QR Code Simples</h1>
+      <p class="explanation">
+        Insira qualquer URL, texto ou chave (ex: e-mail) no campo abaixo. O
+        código será gerado automaticamente. Lembre-se que não funciona para PIX.
+      </p>
+
+      <input
+        type="url"
+        id="urlInput"
+        placeholder="Ex: https://seusite.com.br ou apenas um texto"
+        value="https://jpgomes035.github.io/joaopedro-portfolio/"
+      />
+
+      <div class="button-group">
+        <button id="generateBtn">Gerar QR Code</button>
+        <button id="downloadBtn" style="display: none">
+          Baixar QR Code (PNG)
+        </button>
+      </div>
+
+      <div id="qrcode-wrapper">
+        <div id="qrcode"></div>
+      </div>
+    </div>
+
+    <script>
+      const urlInput = document.getElementById("urlInput");
+      const generateBtn = document.getElementById("generateBtn");
+      const downloadBtn = document.getElementById("downloadBtn");
+      const qrcodeWrapper = document.getElementById("qrcode-wrapper"); // Novo container
+      const qrcodeContainer = document.getElementById("qrcode"); // Container interno
+
+      let qrcodeInstance = null;
+
+      function generateQRCode(content) {
+        qrcodeContainer.innerHTML = "";
+        qrcodeWrapper.classList.add("loading");
+
+        if (!content.trim()) {
+          alert("O campo de conteúdo não pode estar vazio.");
+          qrcodeWrapper.classList.remove("loading");
+          downloadBtn.style.display = "none";
+          return;
+        }
+
+        // Define a cor dos módulos do QR Code dinamicamente usando a variável CSS
+        const colorDark = getComputedStyle(document.documentElement)
+          .getPropertyValue("--primary-text")
+          .trim();
+
+        qrcodeInstance = new QRCode(qrcodeContainer, {
+          text: content,
+          width: 300,
+          height: 300,
+          colorDark: colorDark, // Usamos o branco da variável --primary-text
+          colorLight: "transparent", // Usamos transparente para que o fundo do wrapper apareça
+          correctLevel: QRCode.CorrectLevel.H,
+        });
+
+        // Pequeno delay para garantir que o QR Code seja totalmente renderizado
+        setTimeout(() => {
+          qrcodeWrapper.classList.remove("loading");
+          downloadBtn.style.display = "inline-block";
+        }, 150);
+      }
+
+      // --- Eventos ---
+      generateBtn.addEventListener("click", () => {
+        const content = urlInput.value;
+        generateQRCode(content);
+      });
+
+      downloadBtn.addEventListener("click", () => {
+        const canvasElement = qrcodeContainer.querySelector("canvas");
+
+        if (canvasElement) {
+          // Ajustamos o nome do arquivo para algo mais genérico já que não é só URL
+          const dataURL = canvasElement.toDataURL("image/png");
+          const link = document.createElement("a");
+          link.href = dataURL;
+          link.download = "qrcode_conteudo.png";
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        } else {
+          alert("O QR Code não foi encontrado para download.");
+        }
+      });
+
+      // Inicialização
+      document.addEventListener("DOMContentLoaded", () => {
+        generateQRCode(urlInput.value);
+      });
+    </script>
+  </body>
+</html>
